@@ -3,7 +3,7 @@
 \usepackage{graphicx} % Required for inserting images
 \usepackage[a4paper, total={7in, 10in}]{geometry}
 
-\title{My guide through Gödel's theorems}
+\title{A \textbf{boring} guide through Gödel's theorems}
 \author{Tomek Garbus (github.com/tomaszgarbus)}
 \date{July 2024}
 
@@ -315,7 +315,39 @@ How about:
     $) \rightarrow ', +, \times, ) $ \\
 \end{center}
 
-\subsubsection
+We'll skip the proof because, again, at this point we're not trying to formally define
+logic properties, but just show intuitively that they are defineable if you're patient enough.
+
+\subsubsection{$Form(x)$ -- $x$ is (a Gödel number of) a formula}
+
+Again, a recursive definition would be easy:
+
+\begin{center}
+    \texttt{Form := $\neg$ Form | (Form $\rightarrow$ Form) | ($\forall_x$ Form) | (Term = Term)}
+\end{center}
+
+But again, we cannot use recursion.
+
+One other trick you may have in mind is, what if we create a sequence of properties
+$Form_1(x), Form_2(x), ...$, where $Form_n$ matches formulas of length $n$? The problem here is that
+$Form := Form_1 | Form_2 | ...$, it infinitely long, so we can't encode it as a Gödel number.
+
+Instead, let's list properties of a valid formula to see that each of them can be defined without
+recursion.
+$X$ is a valid formula if (and only if):
+\begin{itemize}
+    \item $CorrectlyParenthesised(\ulcorner x \urcorner)$
+    \item Let $X_i$ denote $i$-th symbol in $X$. For all $i, j$ such that $i < j$ and $X_i = '('$
+        and $X_j = ')$:
+        \begin{itemize}
+            \item if there are no other parentheses in $X_{i + j : j - 1}$, then $X_{i + j : j - 1}$
+                is of form $Term = Term$.
+            \item if there is equal number of opening and closing parentheses in $X_{i + j : j - 1}$,
+                then $X_{i + j : j - 1}$ matches one of the patterns: $\neg (...)$, $(...) \rightarrow (...)$,
+                $\forall_x (...)$, where we don't care about content of $(...)$ other than it must be
+                $CorrectlyParenthesised$.
+        \end{itemize}
+\end{itemize}
 
 \section{Appendix}
 
