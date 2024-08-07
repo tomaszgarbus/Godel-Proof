@@ -1,0 +1,381 @@
+\documentclass{article}
+\usepackage{mathtools,amssymb}
+\usepackage{graphicx} % Required for inserting images
+\usepackage[a4paper, total={7in, 10in}]{geometry}
+
+\title{My guide through Gödel's theorems}
+\author{Tomek Garbus (github.com/tomaszgarbus)}
+\date{July 2024}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+This article aims to provide a concise, accessible and complete guidance
+through the definition and proof of Gödel's incompleteness theorems, as well
+as all the prerequisites along the way.
+
+We will not discuss philosophical implications of the theorems nor their
+historical context. Not because they are not worth our attention, quite the contrary.
+I am assuming that you, dear Reader, already have your motivation for understanding the
+technicalities of Gödel's theorems just as I had mine.
+
+\section{Outline}
+
+I promised you a concise guide without unnecessary rambling. This is the only section where
+I break this promise to introduce some ideas, so bear with me.
+
+\subsection{Self-reference}
+
+Gödel's proof is built around the notion of \textit{self-reference} of logical statements.
+This is all you need to know, but if you bear with me for just a few paragraphs, I will try
+to paint a fuller picture of what kind of self-reference we are talking about.
+
+Let's consider a few other examples of self-reference in other domains:
+
+\begin{enumerate}
+    \item Well-known paradox statement \textit{This sentence is false}.
+    \item Utterance \textit{I like bread.}
+    \item A computer program copying its own executable to another block of memory.
+    \item A \textit{quine} -- computer program reproducing its own source code.
+\end{enumerate}
+
+If you pay close attention to these examples, you will notice that one of them stands out.
+
+The first three can be considered a \textit{pointing} self-reference. The sentence \textit{this
+sentence is false} is pointing to itself with the word \textit{this}. When I say \textit{I
+like bread}, I'm pointing at myself with the word \textit{I}. A program copying its own executable
+probably stores a pointer to the memory block containing its binary.
+
+A quine clearly stands out. We can call it, for a lack of a better term, \textit{full}
+self-reference or \textit{value} self-reference. In other words, not only are the referring
+agent and the referent identical (same as in pointing self-reference), but they are fully
+recoverable from the \textit{reference itself}. The reference itself contains everything there
+is to know about the referent.
+
+\subsection{Meaning--representation duality}
+
+Every computer program, every statement in logic, every natural language sentence
+can be seen through two different modalities -- \textit{meaning} and \textit{representation}.
+This is pretty self-explanatory. For instance, for a C++ program, the representation is a text
+file on disk, and its meaning is actualized in the process of compiling and running the
+executable.
+
+In the examples of value self-reference from the previous section, meaning and representation
+are very closely tied. The \textit{meaning} of a quine is precisely that it produces its own
+\textit{representation}. A program that copies its own executable also manipulates its own
+representation -- but in this case, its representation is in binary, not text form.
+
+In everyday life we seldom mix between the two. We value programs, logic propositions
+and sentences for their meaning, and use their representation to disseminate them.
+
+The most common example of mixing these two modalities I can think of are utterances of
+meta-language, for example: \textit{In Polish, the word computer is spelled 'komputer'}.
+Even when we read the whole meta-language sentence for its meaning, we focus on the
+representation in the object language part of the sentence.
+
+Gödel's proof is really an unusual exercise in hopping between meaning and representation
+of logic propositions. It doesn't feel natural at first -- and for me personally it was
+the reason why I felt the need to follow Gödel's theorems' proof in detail rather than
+taking the general outline at face value.
+
+\subsection{Finally, outline}
+
+The construction of Gödel's theorems will follow through three main steps:
+
+\begin{enumerate}
+    \item Create a numerical representation $\ulcorner ... \urcorner$ for logic propositions,
+        such that for every logic formula $A$, $\ulcorner A \urcorner$ is a unique natural number:
+        $\forall_{A_1, A_2} (\ulcorner A_1 \urcorner \neq \ulcorner A_2 \urcorner
+        \rightarrow A_1 \neq A_2$). This is called Gödel numbering.
+    \item Introduce a property $Prov_F(n)$ which is true if the formula with Gödel number $n$
+        is provable within formal system $F$.
+    \item Prove that in a chosen (sufficiently powerful) arithmetic system $F$,
+        it is possible to construct \textit{Gödel formula} $G_F$ such that
+        $F \models G_F \leftrightarrow \neg Prov_F(\ulcorner G_F \urcorner)$. In other words, within system
+        $F$, the Gödel formula $G_F$ says: \textit{$G_F$ is not provable within $F$}.
+
+        Gödel's formula $G_F$ can neither be proved nor disproved within $F$ and in this
+        sense it is a formal version of the sentence \textit{This sentence is false.}\footnote{
+            A careful reader will point out that falsity and not being provable are two different
+            properties. Thus Gödel's formula is not literally equivalent to the
+            paradox sentence, but the analogy is still helpful.
+        }
+\end{enumerate}
+
+\section{Gödel theorems statement}
+
+Just a quick recap of what we're going to prove:
+
+\subsection{First incompleteness theorem}
+
+\textit{Any consistent formal system $F$, within which a certain amount of elementary
+arithmetic can be carried out is incomplete; i.e. there are statements of $F$ which can be
+neither proved nor disproved in $F$.}
+
+\subsection{Second incompleteness theorem}
+\textit{For any consistent system $F$ within which a certain amount of elementary
+arithmetic can be carried out, the consistency of $F$ cannot be proved within $F$ itself.}
+
+\section{Gödel numbering}
+
+\subsection{Symbol numbers}
+
+We will start with defining \textit{symbol numbers}, that is mappings from elements of
+logic syntax to natural numbers:
+
+\begin{center}
+{\renewcommand{\arraystretch}{1.5}
+\begin{tabular}{ c c c c c }
+ $\#('0') = 1$ & $\#(''') = 2$ & $\#('+') = 3$ & $\#('\times') = 4$ & $\#('=') = 5$ \\ 
+ $\#('(') = 6$ & $\#(')') = 7$ & $\#('\rightarrow') = 8$ & $\#('\neg') = 9$ & $\#('\forall') = 10$ \\ 
+ & & $\#('x_i') = 11 + i$ & & \\ 
+\end{tabular}
+}
+\end{center}
+
+Note that we are using a minimal arithmetic where natural numbers are encoded as successors of
+(successors of) zero:
+\begin{center}
+    $1 := 0'$\\
+    $2 := 1' = 0''$\\
+    ...\\
+    $n := 0{\overbrace{'''...'}^{n}}$
+\end{center}
+
+\subsection{Coding sequences}
+
+A sequence $(n_0, n_1, ..., n_k)$ can be coded as $p_0^{n_0} \times p_1^{n_1} \times ... \times p_n^{n_n}$,
+where $p_i$ are next prime numbers and for $n_i$ we use symbol numbers.
+
+For example, expression $'0=0'$ will be coded as
+$p_0^{\#('0')} \times p_1^{\#('=')} \times p_2^{\#('0')} = 2^1 \times 3^5 \times 5^1 = 2430$.
+
+Gödel number for formula $A$ is denoted $\ulcorner A \urcorner$.
+For example, $\ulcorner '0=0' \urcorner = 2430$.
+
+\subsection{Syntactical properties and operations definable in arithmetical language}
+
+Before we go ahead and define other notions using elementary arithmetic, let's introduce
+one very useful device: Gödel's $\beta$-function.
+
+\subsubsection{Gödel's $\beta$-function}
+
+$\beta$-function is defined as $\beta(x_1, x_2, x_3) = mod(x_1, 1+(x_3+_1)x_2) = 
+mod(x_1, x_2x_3+x_2+1)$.
+
+\textbf{$\beta$-function lemma:} for any sequence of natural numbers $(k_0, k_1, ..., k_n)$
+there are natural numbers $b$ and $c$ such that for every natural number $0 \leqslant i \leqslant n$,
+$\beta(b, c, i) = k_i$.
+
+You will find the proof of this lemma in the appendix, at the end of the document. I suggest you skip it
+for now and follow the flow of the main proof. Frankly, I have no clue how Gödel came up with this
+function, but the bottom line is we have a device for expressing arbitrary finite sequences of natural
+numbers.
+
+We can now use the $\beta$-function to define the $seq$ relation:
+
+\begin{center}
+    $\exists := \neg \forall \neg$
+
+    $mod(a, b, c) := \exists_n (a = b \times n + c \land c < b)$
+    
+    $seq(a, b, i, x) := mod(a, (b \times i'), x)$
+\end{center}
+
+By the $\beta$-function lemma, for every sequence $(k_0, ..., k_n)$ there exist numbers $a, b$ s.t.
+$\forall_{0 \leqslant i \leqslant n}(seq(a, b, i, k_i))$.
+
+\subsubsection{Some common formulas}
+
+Let's define some more building blocks of everyday arithmetics:
+
+\begin{center}
+    $a \land b := \neg(a \rightarrow \neg b)$
+
+    $a \lor b := \neg a \rightarrow b$
+    
+    $a \leqslant b := \exists_n (a + n = b \land n \neq 0)$
+    
+    $a < b := \exists_n (a + n = b \land n \neq 0)$
+
+    $ pow(a, b, c) := \exists_x \exists_y \biggl(
+        seq(x, y, 0, 0') \land seq(x, y, b, c) \land
+        \forall_k \forall_z \Bigl(
+            (k < b \land seq(x, y, k, z))
+            \rightarrow
+            seq(x, y, k', z \times a)
+        \Bigl)
+    \biggl) $
+\end{center}
+
+What happened in that last step? We defined the relation $pow(a, b, c)$ (meaning: $a^b = c$)
+as: "there exists a sequence of natural numbers (encoded by $x, y$ as per $\beta$-function
+lemma), such that the $0$th element is $1$, and each subsequent element (until $b$-th) is
+$a$ times its predecessor, and the $b$-th element equals $c$".
+
+Property of number $x$ being prime:
+
+\begin{center}
+    $prime(x) := 0' < x \land \forall_n \forall_m \bigl(
+        (0' < n \land n < x \land mod(x, n, m)) \rightarrow \neg (m = 0)
+    \bigl)$
+\end{center}
+
+Property of number $r$ being $n$-th prime:
+
+\begin{center}
+    $prime(r, n) := \exists_x \exists_y \Biggl(
+        seq(x, y, 0, 0'') \land seq(x, y, n, r) \land
+        \forall_k \forall_s \biggl(
+            (k > 0 \land k \leqslant n \land seq(x, y, k, s))
+            \rightarrow
+            \Bigl(
+                prime(s) \land \forall_t \bigl(
+                    seq(x, y, k-1, t)
+                    \rightarrow
+                    \neg \exists_u (t < u \land u < s \land prime(u))
+                \bigl)
+            \Bigl)
+        \biggl)
+    \Biggl)$
+\end{center}
+
+Or in other words: $r$ is the $n$-th prime, if there exists a sequence (encoded by numbers
+$x, y$ as per $\beta$-function lemma) such that the $0$-th element equals $0'' = 2$, $n$-th element
+equals $r$, and for each $k \leqslant n$, $k$-th element is a prime bigger than $k-1$-th element,
+and there are no primes between $k-1$-th and $k$-th elements.
+
+\subsubsection{$Const(x)$ -- $x$ is (a Gödel number of) a constant}
+
+A constant $n$ is represented in our minimal arithmetics as $0\overbrace{''...'}^{n}$.
+Its Gödel number is $p_0^{\#('0')} \times p_1^{\#(''')} \times ... \times p_n^{\#(''')} =
+2^1 \times 3^2 \times ... \times p_n^2$. Now we can express it formally:
+
+\begin{center}
+    $Const(x) := mod(x, 2, 0) \land \neg mod(x, 4, 0) \land
+    \exists_n \forall_m \Bigl(
+        \bigl(
+            m > 2 \land m \leqslant n \land prime(m)
+        \bigl)
+        \rightarrow
+        \bigl(
+            (mod(x, m \times m, 0) \land \neg mod(x, m \times m \times m, 0))
+        \bigl)
+    \Bigl)$
+\end{center}
+
+\subsubsection{$Var(x)$ -- $x$ is (a Gödel number of) a variable}
+
+Recall that symbol number for variable $x_i$ is $11 + i$, so a sequence consisting only of
+the variable $x_i$ will be encoded as $p_0^{11 + i} = 2^{11 + i}$.
+
+\begin{center}
+    $Var(x) := \exists_n n \geqslant 11 \land pow(2, n, x)$
+\end{center}
+
+\subsubsection{Some more properties and relations}
+
+Okay, this is a point where I'll stop presenting exact definitions and start waving my hands
+instead. The following relations are conceptually easy to define:
+
+\begin{itemize}
+    \item $Length(x, n)$ -- length of the encoded sequence $x$ is $n$. It's enough to check that
+        $p_n$ is the biggest prime divisor of $x$.
+    \item $Shift(x, n, X)$ -- $X$ is the encoded sequence $x$ shifted to the right by $n$ positions.
+    \item $Concat(x, y, z)$ -- $z$ is the encoded concatenation $S_1S_2$, where $x$ is the
+        encoded sequence $S_1$ and $y$ is encoded $S_2$. It suffices to check that
+        $\exists_{n, Y} \bigl( z = x \times Y \land Length(x, n) \land Shift(y, n, Y) \bigl)$.
+    \item $CorrectlyParenthesised(x)$ -- $x$ is the encoded correctly parenthesised sequence.
+\end{itemize}.
+
+\subsubsection{$Term(x)$ -- $x$ is (a Gödel number of) a term}
+
+Note that we cannot use recursion, because all formulas
+we come up with must be encodeable with Gödel numbering\footnote{
+    A good analogy here are C/C++ macros, which also do not support recursion.
+    Consider our helper properties and relations, such as $pow, mod, Term$ etc., "macros"
+    to make our minimal arithmetic easier to work with. But ultimately, before evaluating
+    a formula, or calculating its Gödel number, we must translate it into primitive
+    arithmetic language.
+}. If we can't use recursive definition such as "\texttt{Term := Const | Var | Const+Term | ...}",
+we'll need to identify what properties of a sequence make it a valid term.
+
+How about:
+\begin{center}
+    $Term(x) := CorrectlyParenthesised(x)$ and the only allowed transitions between consecutive
+    symbols are: \\
+    $0 \rightarrow ', +, \times, )$ \\
+    $' \rightarrow ', +, \times, )$ \\
+    $x_i \rightarrow ', +, \times, )$ \\
+    $+ \rightarrow 0, (, x_i$ \\
+    $\times \rightarrow 0, (, x_i$ \\
+    $( \rightarrow 0, (, x_i $ \\
+    $) \rightarrow ', +, \times, ) $ \\
+\end{center}
+
+\subsubsection
+
+\section{Appendix}
+
+\subsection{$\beta$-function lemma proof}
+
+To prove the $\beta$-function lemma, we will take advantage of Chinese Remainder Theorem (CRT):
+
+\begin{center}
+    \textit{
+        Suppose $x_0, ..., x_n$ are pairwise relatively prime. Let $y_0, ..., y_n$ be any natural numbers.
+        Then there is a number $z$ such that:
+    }
+
+    $z \equiv y_0\ \text{mod}\ x_0$\\
+    ...\\
+    $z \equiv y_n\ \text{mod}\ x_n$
+\end{center}
+
+Now the trick is to find such sequence $x_0, ..., x_n$ that can be used in our limited arithmetic
+without remembering the whole sequence as variables and that will guarantee existence of number $z$
+which solves the CRT system of congruences, thus encoding our original sequence $y_0, ..., y_n$.
+Our sequence $x_0, ..., x_n$ should also satisfy $x_i > y_i$, so that given the number $z$,
+sequence $y$ will be uniquely decodable.
+
+Given $y_0, ..., y_n$, let:
+
+\begin{center}
+    $j = \text{max}(n, y_0, ..., y_n) + 1$
+\end{center}
+
+and:
+
+\begin{center}
+    $x_0 = 1 + j!$\\
+    $x_1 = 1 + 2 \cdot j!$\\
+    ...\\
+    $x_n = 1 + (n + 1) \cdot j!$
+\end{center}
+
+This sequence satisfies the conditions of CRT, because:
+
+\begin{itemize}
+    \item $x_i > y_i$. More precisely: $x_i > j! > j \geqslant y_i$.
+    \item $x_i$ are pairwise relatively prime. If they weren't there would be such prime number $p$
+        and such $x_i, x_j, x_i \leq x_j$ that $p | x_i$ and $p | x_j$. If $p | x_i$ and $p | x_j$
+        then $p | x_i - x_j$, so $p | m \cdot j!$ for some $m \leqslant n$. $p$ cannot divide $j!$
+        because it divides $x_i = 1 + (i+1) \cdot j!$, so it must divide $m$. But $m \leqslant j$,
+        so it must also divide $j!$. We have a contradiction, therefore such $p$ cannot exist.
+\end{itemize}
+
+Thus, for any sequence of natural numbers $y_0, ..., y_n$, there exists number $z$
+such that $\forall_{0 \leqslant i \leqslant n}(\beta(z, j!, i) = mod(z, 1 + (i + 1) \times j!) = y_i)$,
+where $j$ is constructed as above.
+
+\subsection{CRT proof}
+
+
+
+% TODO: bilbiography
+% https://plato.stanford.edu/entries/goedel-incompleteness/#FirIncThe
+% https://builds.openlogicproject.org/content/incompleteness/representability-in-q/beta-function.pdf
+
+\end{document}
