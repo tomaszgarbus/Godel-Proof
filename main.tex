@@ -11,8 +11,16 @@
 
 \maketitle
 
+\section{TODOs}
+
+\begin{itemize}
+    \item Replace ' with $^+$ as the successor symbol
+    \item Cleaner division where we define things
+    \item Explain the logical formulas for defining properties
+\end{itemize}
+
 \section{Introduction}
-This article aims to provide a concise, accessible and complete guidance
+This article aims to provide an accessible and complete guidance
 through the definition and proof of Gödel's incompleteness theorems, as well
 as all the prerequisites along the way.
 
@@ -128,7 +136,7 @@ logic syntax to natural numbers:
 \begin{center}
 {\renewcommand{\arraystretch}{1.5}
 \begin{tabular}{ c c c c c }
- $\#('0') = 1$ & $\#(''') = 2$ & $\#('+') = 3$ & $\#('\times') = 4$ & $\#('=') = 5$ \\ 
+ $\#('0') = 1$ & $\#(''') = 2$ & $\#('+') = 3$ & $\#('\cdot') = 4$ & $\#('=') = 5$ \\ 
  $\#('(') = 6$ & $\#(')') = 7$ & $\#('\rightarrow') = 8$ & $\#('\neg') = 9$ & $\#('\forall') = 10$ \\ 
  & & $\#('x_i') = 11 + i$ & & \\ 
 \end{tabular}
@@ -146,11 +154,11 @@ Note that we are using a minimal arithmetic where natural numbers are encoded as
 
 \subsection{Coding sequences}
 
-A sequence $(n_0, n_1, ..., n_k)$ can be coded as $p_0^{n_0} \times p_1^{n_1} \times ... \times p_n^{n_n}$,
+A sequence $(n_0, n_1, ..., n_k)$ can be coded as $p_0^{n_0} \cdot p_1^{n_1} \cdot ... \cdot p_n^{n_n}$,
 where $p_i$ are next prime numbers and for $n_i$ we use symbol numbers.
 
 For example, expression $'0=0'$ will be coded as
-$p_0^{\#('0')} \times p_1^{\#('=')} \times p_2^{\#('0')} = 2^1 \times 3^5 \times 5^1 = 2430$.
+$p_0^{\#('0')} \cdot p_1^{\#('=')} \cdot p_2^{\#('0')} = 2^1 \cdot 3^5 \cdot 5^1 = 2430$.
 
 Gödel number for formula $A$ is denoted $\ulcorner A \urcorner$.
 For example, $\ulcorner '0=0' \urcorner = 2430$.
@@ -162,7 +170,7 @@ one very useful device: Gödel's $\beta$-function.
 
 \subsubsection{Gödel's $\beta$-function}
 
-$\beta$-function is defined as $\beta(x_1, x_2, x_3) = mod(x_1, 1+(x_3+_1)x_2) = 
+$\beta$-function is defined as $\beta(x_1, x_2, x_3) = mod(x_1, 1+(x_3+1)x_2) = 
 mod(x_1, x_2x_3+x_2+1)$.
 
 \textbf{$\beta$-function lemma:} for any sequence of natural numbers $(k_0, k_1, ..., k_n)$
@@ -179,9 +187,9 @@ We can now use the $\beta$-function to define the $seq$ relation:
 \begin{center}
     $\exists := \neg \forall \neg$
 
-    $mod(a, b, c) := \exists_n (a = b \times n + c \land c < b)$
+    $mod(a, b, c) := \exists_n (a = b \cdot n + c \land c < b)$
     
-    $seq(a, b, i, x) := mod(a, (b \times i'), x)$
+    $seq(a, b, i, x) := mod(a, (b \cdot i'), x)$
 \end{center}
 
 By the $\beta$-function lemma, for every sequence $(k_0, ..., k_n)$ there exist numbers $a, b$ s.t.
@@ -205,7 +213,7 @@ Let's define some more building blocks of everyday arithmetics:
         \forall_k \forall_z \Bigl(
             (k < b \land seq(x, y, k, z))
             \rightarrow
-            seq(x, y, k', z \times a)
+            seq(x, y, k', z \cdot a)
         \Bigl)
     \biggl) $
 \end{center}
@@ -250,8 +258,8 @@ and there are no primes between $k-1$-th and $k$-th elements.
 \subsubsection{$Const(x)$ -- $x$ is (a Gödel number of) a constant}
 
 A constant $n$ is represented in our minimal arithmetics as $0\overbrace{''...'}^{n}$.
-Its Gödel number is $p_0^{\#('0')} \times p_1^{\#(''')} \times ... \times p_n^{\#(''')} =
-2^1 \times 3^2 \times ... \times p_n^2$. Now we can express it formally:
+Its Gödel number is $p_0^{\#('0')} \cdot p_1^{\#(''')} \cdot ... \cdot p_n^{\#(''')} =
+2^1 \cdot 3^2 \cdot ... \cdot p_n^2$. Now we can express it formally:
 
 \begin{center}
     $Const(x) := mod(x, 2, 0) \land \neg mod(x, 4, 0) \land
@@ -261,7 +269,7 @@ Its Gödel number is $p_0^{\#('0')} \times p_1^{\#(''')} \times ... \times p_n^{
         \bigl)
         \rightarrow
         \bigl(
-            (mod(x, m \times m, 0) \land \neg mod(x, m \times m \times m, 0))
+            (mod(x, m \cdot m, 0) \land \neg mod(x, m \cdot m \cdot m, 0))
         \bigl)
     \Bigl)$
 \end{center}
@@ -286,9 +294,9 @@ instead. The following relations are conceptually easy to define:
     \item $Shift(x, n, X)$ -- $X$ is the encoded sequence $x$ shifted to the right by $n$ positions.
     \item $Concat(x, y, z)$ -- $z$ is the encoded concatenation $S_1S_2$, where $x$ is the
         encoded sequence $S_1$ and $y$ is encoded $S_2$. It suffices to check that
-        $\exists_{n, Y} \bigl( z = x \times Y \land Length(x, n) \land Shift(y, n, Y) \bigl)$.
+        $\exists_{n, Y} \bigl( z = x \cdot Y \land Length(x, n) \land Shift(y, n, Y) \bigl)$.
     \item $CorrectlyParenthesised(x)$ -- $x$ is the encoded correctly parenthesised sequence.
-\end{itemize}.
+\end{itemize}
 
 \subsubsection{$Term(x)$ -- $x$ is (a Gödel number of) a term}
 
@@ -306,13 +314,13 @@ How about:
 \begin{center}
     $Term(x) := CorrectlyParenthesised(x)$ and the only allowed transitions between consecutive
     symbols are: \\
-    $0 \rightarrow ', +, \times, )$ \\
-    $' \rightarrow ', +, \times, )$ \\
-    $x_i \rightarrow ', +, \times, )$ \\
+    $0 \rightarrow ', +, \cdot, )$ \\
+    $' \rightarrow ', +, \cdot, )$ \\
+    $x_i \rightarrow ', +, \cdot, )$ \\
     $+ \rightarrow 0, (, x_i$ \\
-    $\times \rightarrow 0, (, x_i$ \\
+    $\cdot \rightarrow 0, (, x_i$ \\
     $( \rightarrow 0, (, x_i $ \\
-    $) \rightarrow ', +, \times, ) $ \\
+    $) \rightarrow ', +, \cdot, ) $ \\
 \end{center}
 
 We'll skip the proof because, again, at this point we're not trying to formally define
@@ -348,6 +356,195 @@ $X$ is a valid formula if (and only if):
                 $CorrectlyParenthesised$.
         \end{itemize}
 \end{itemize}
+
+\subsubsection{$Free(x, y)$ -- $y$ is free variable in $x$}
+
+We can assume, without losing the expressive power of our arithmetic, that we are only concerned with
+formulas without variable shadowing.
+
+Then it suffices to check that whenever $y$ occurs in the formula encoded by $x$, it is not directly preceded
+by symbol $\forall$.
+
+\subsubsection{$Impl(x, y, z)$ -- implication}
+
+This relation is true for all triplets of formulas $A, B, A \rightarrow B$:
+$Impl(\ulcorner A \urcorner, \ulcorner B \urcorner, \ulcorner A \rightarrow B \urcorner)$.
+
+\begin{center}
+    $impl(x, y, z) := Form(x) \land Form(y) \land \exists_t \bigl(
+        Concat(x, \ulcorner \rightarrow \urcorner, t)
+        \land
+        Concat(t, y, z)
+    \bigl)$
+\end{center}
+
+\subsubsection{$subst(x, y, z)$ -- Substitution of free variable}
+
+$subst(x, y, z)$ expresses: \textit{$z$ is (the Gödel number of) the result of substituting the free variable
+in (the formula encoded by) $x$ with (the variable encoded by) $y$, assuming that (the formula encoded by)
+$x$ has only one free variable}.
+
+For example:
+
+\begin{center}
+    $subst(\ulcorner A(x) \urcorner, \underline{n}, \ulcorner A(\underline{n}) \urcorner)$
+\end{center}
+
+where $\underline{n}$ is the formal representation of the numeral $n$.
+
+\subsubsection{Formulas for logical derivations}
+
+The $impl$ property we defined earlier can be simply reused to define formula $M$, matching the use
+of Modus Ponens:
+
+\begin{center}
+    $M(x, y, z) := Form(x) \land Form(z) \land impl(x, z, y)$
+\end{center}
+
+Assume that we are working in a formal system $F$ with a fixed set of axioms and rules of derivation.
+We can also define:
+
+\begin{itemize}
+    \item $LogAx(x)$ -- $x$ is (a Gödel number of) a logical axiom
+    \item $Axiom_F(x)$ -- $x$ is (a Gödel number of) a non-logical axiom
+    \item $Prf_F(x, y)$ -- $x$ is (a Gödel number of) a derivation (in $F$) of the formula with
+        Gödel number $y$
+    \item $Prov_F(y) := \exists_x \bigl( Prf_F(x, y) \bigl)$ -- $y$ is (a Gödel number of) a formula
+        that is provable in $F$.
+\end{itemize}
+
+\section{Arithmetical theories}
+
+\subsection{Q (Robinson arithmetic)}
+
+Axioms:
+\begin{center}
+    $\neg (0 = x')$ \\
+    $x' = y' \rightarrow x = y$ \\
+    $\neg (x = 0) \rightarrow \exists y (x = y')$ \\
+    $x + 0 = x$ \\
+    $x + y' = (x + y)'$ \\
+    $x \cdot 0 = 0$ \\
+    $x \cdot y' = (x \cdot y) + x$
+\end{center}
+
+\subsection{PA (Peano Arithmetic)}
+
+Q + IND axiom:
+
+\begin{center}
+    IND: $\phi(0) \land \forall_x \bigl( \phi(x) \rightarrow \phi(x') \bigl) \rightarrow \forall_x \phi(x)$
+\end{center}
+
+\section{The Diagonalization Lemma}
+
+\subsection{Warm-up: Cantor's diagonal argument}
+
+Before we immerse ourselves in the Gödelian Diagonalization Lemma,
+I'd like to introduce Georg Cantor's so-called diagonal argument.
+It's slightly easier to grasp and will at least give you some intuition how
+the proof construction works and why it's called diagonal.
+
+We will use Cantor's diagonal argument to prove that there are more real
+numbers than natural numbers, or as you may already know, that
+natural numbers are countably infinite and real numbers are uncountably
+infinite.
+
+Consider the set of all infinite binary sequences, let's call it $T$.
+Assume that $T$ is enumerable and pick any enumeration $t_1, t_2, ...$.
+
+For example:
+
+\begin{center}
+    $t_1 = (0, 0, 0, 0, 0, 0, 0...)$\\
+    $t_2 = (0, 1, 0, 1, 0, 1, 0 ...)$\\
+    $t_3 = (1, 0, 1, 0, 1, 0, 1 ...)$\\
+    $t_4 = (1, 1, 1, 0, 1, 1, 1 ...)$\\
+    $t_5 = (0, 0, 1, 0, 0, 1, 0 ...)$\\
+    $t_6 = (0, 1, 0, 0, 1, 0, 0 ...)$\\
+    $t_7 = (1, 0, 0, 1, 0, 0, 1 ...)$\\
+    ...\\
+\end{center}
+
+Now we will show how to construct an infinite sequence which belongs to
+$T$ but is not equal to any $t_i$:
+
+\begin{center}
+    $s = (1-t_{1,1}, 1-t_{2,2}, ..., 1-t_{i,i}, ...)$
+\end{center}
+
+Note that we are picking elements over the diagonal and negating them:
+
+\begin{center}
+    $t_1 = (\mathbf{0}, 0, 0, 0, 0, 0, 0...)$\\
+    $t_2 = (0, \mathbf{1}, 0, 1, 0, 1, 0 ...)$\\
+    $t_3 = (1, 0, \mathbf{1}, 0, 1, 0, 1 ...)$\\
+    $t_4 = (1, 1, 1, \mathbf{0}, 1, 1, 1 ...)$\\
+    $t_5 = (0, 0, 1, 0, \mathbf{0}, 1, 0 ...)$\\
+    $t_6 = (0, 1, 0, 0, 1, \mathbf{0}, 0 ...)$\\
+    $t_7 = (1, 0, 0, 1, 0, 0, \mathbf{1} ...)$\\
+    ...\\
+    $s = (\mathbf{1}, \mathbf{0}, \mathbf{0}, \mathbf{1}, \mathbf{1}, \mathbf{1}, \mathbf{0}, ...)$
+\end{center}
+
+Clearly, for any $i$, $s$ and $t_i$ differ on the $i$-th element.
+Since $s \in T$ and $s$ is left out of enumeration of $T$, $T$ is not enumerable.
+
+\subsection{The Diagonalization Lemma statement}
+
+\begin{center}
+    Let $A(x)$ be arbitrary formula of language of $F$ with only $1$ free variable. Then a sentence $D$ can be
+    mechanically constructed such that $F \models \bigl( D \leftrightarrow A(\ulcorner D \urcorner) \bigl)$.
+\end{center}
+
+In other words:
+
+\begin{center}
+    Let $A$ be arbitrary property formally expressed in $F$. Then it is possible to construct a sentence $D$
+    (formally, in $F$), such that $D$ is interpreted in $F$ as "(the Gödelian representation of) $D$ has property $A$".
+\end{center}
+
+\subsection{Proof}
+
+Recall the $subst(x, y, z)$ operation that we defined earlier:
+
+\begin{center}
+    $subst(x, y, z) \leftrightarrow x = \ulcorner A(x_1) \urcorner \land y = n \land z = \ulcorner A(\underline{n}) \urcorner$
+\end{center}
+
+In particular, we can consider formulas of form $subst(x, x, y)$ -- or, if you 
+will, $subst(\ulcorner A(x) \urcorner, \ulcorner A(x) \urcorner, y)$.
+
+Given any formula $A(x)$ we can construct formula
+$B(x) := \exists_{y} \bigl( A(y) \land subst(x, x, y) \bigr)$
+with one free variable $x$. Like every formula in $F$, $B(x)$ has a Gödel number.
+Let's denote it as $k := \ulcorner B(x) \urcorner$.
+
+Now, substitute $x$ in $B$ with $\underline{k}$. Name the resulting sentence $D$:
+
+\begin{center}
+    $D := B(\underline{k}) := \exists_y \bigl(
+        A(y) \land subst(\underline{k}, \underline{k}, y)
+    \bigr)$
+\end{center}
+
+If you're not confused now, you should be. Let me unwrap this definition above
+to show deeply we've gone with encoding formulas into Gödel numbers:
+
+\begin{center}
+    $B(\underline{k}) \leftrightarrow \\
+    B(\ulcorner B(x) \urcorner) \leftrightarrow \\
+    B(\ulcorner \exists_y \bigl(
+        A(y) \land subst(x, x, y)
+    \bigr) \urcorner) \leftrightarrow \\
+    \exists_y \Bigl(
+        A(y) \land subst(
+            \ulcorner \exists_z \bigl(subst(x, x, z) \bigr) \urcorner,
+            \ulcorner \exists_z \bigl(subst(x, x, z) \bigr) \urcorner,
+            y)
+    \Bigr)
+    $
+\end{center}
 
 \section{Appendix}
 
@@ -399,7 +596,7 @@ This sequence satisfies the conditions of CRT, because:
 \end{itemize}
 
 Thus, for any sequence of natural numbers $y_0, ..., y_n$, there exists number $z$
-such that $\forall_{0 \leqslant i \leqslant n}(\beta(z, j!, i) = mod(z, 1 + (i + 1) \times j!) = y_i)$,
+such that $\forall_{0 \leqslant i \leqslant n}(\beta(z, j!, i) = mod(z, 1 + (i + 1) \cdot j!) = y_i)$,
 where $j$ is constructed as above.
 
 \subsection{CRT proof}
