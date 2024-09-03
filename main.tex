@@ -136,7 +136,7 @@ logic syntax to natural numbers:
 \begin{center}
 {\renewcommand{\arraystretch}{1.5}
 \begin{tabular}{ c c c c c }
- $\#('0') = 1$ & $\#(''') = 2$ & $\#('+') = 3$ & $\#('\cdot') = 4$ & $\#('=') = 5$ \\ 
+ $\#('0') = 1$ & $\#('^{+}') = 2$ & $\#('+') = 3$ & $\#('\cdot') = 4$ & $\#('=') = 5$ \\ 
  $\#('(') = 6$ & $\#(')') = 7$ & $\#('\rightarrow') = 8$ & $\#('\neg') = 9$ & $\#('\forall') = 10$ \\ 
  & & $\#('x_i') = 11 + i$ & & \\ 
 \end{tabular}
@@ -146,11 +146,15 @@ logic syntax to natural numbers:
 Note that we are using a minimal arithmetic where natural numbers are encoded as successors of
 (successors of) zero:
 \begin{center}
-    $1 := 0'$\\
-    $2 := 1' = 0''$\\
+    $1 := 0^+$\\
+    $2 := 1^+ = 0^{++}$\\
     ...\\
-    $n := 0{\overbrace{'''...'}^{n}}$
+    $n := 0{\overbrace{{}^{+++}...^{+}}^{n}}$
 \end{center}
+
+Typically one would use asterisks as the successor symbol. But because we're using them
+a lot here for enclosing string literals, I decided that superscript plus symbols will be
+more readable in this context.
 
 \subsection{Coding sequences}
 
@@ -189,7 +193,7 @@ We can now use the $\beta$-function to define the $seq$ relation:
 
     $mod(a, b, c) := \exists_n (a = b \cdot n + c \land c < b)$
     
-    $seq(a, b, i, x) := mod(a, (b \cdot i'), x)$
+    $seq(a, b, i, x) := mod(a, (b \cdot i^+), x)$
 \end{center}
 
 By the $\beta$-function lemma, for every sequence $(k_0, ..., k_n)$ there exist numbers $a, b$ s.t.
@@ -209,11 +213,11 @@ Let's define some more building blocks of everyday arithmetics:
     $a < b := \exists_n (a + n = b \land n \neq 0)$
 
     $ pow(a, b, c) := \exists_x \exists_y \biggl(
-        seq(x, y, 0, 0') \land seq(x, y, b, c) \land
+        seq(x, y, 0, 0^+) \land seq(x, y, b, c) \land
         \forall_k \forall_z \Bigl(
             (k < b \land seq(x, y, k, z))
             \rightarrow
-            seq(x, y, k', z \cdot a)
+            seq(x, y, k^+, z \cdot a)
         \Bigl)
     \biggl) $
 \end{center}
@@ -226,8 +230,8 @@ $a$ times its predecessor, and the $b$-th element equals $c$".
 Property of number $x$ being prime:
 
 \begin{center}
-    $prime(x) := 0' < x \land \forall_n \forall_m \bigl(
-        (0' < n \land n < x \land mod(x, n, m)) \rightarrow \neg (m = 0)
+    $prime(x) := 0^+ < x \land \forall_n \forall_m \bigl(
+        (0^+ < n \land n < x \land mod(x, n, m)) \rightarrow \neg (m = 0)
     \bigl)$
 \end{center}
 
@@ -235,7 +239,7 @@ Property of number $r$ being $n$-th prime:
 
 \begin{center}
     $prime(r, n) := \exists_x \exists_y \Biggl(
-        seq(x, y, 0, 0'') \land seq(x, y, n, r) \land
+        seq(x, y, 0, 0^{++}) \land seq(x, y, n, r) \land
         \forall_k \forall_s \biggl(
             (k > 0 \land k \leqslant n \land seq(x, y, k, s))
             \rightarrow
@@ -251,14 +255,14 @@ Property of number $r$ being $n$-th prime:
 \end{center}
 
 Or in other words: $r$ is the $n$-th prime, if there exists a sequence (encoded by numbers
-$x, y$ as per $\beta$-function lemma) such that the $0$-th element equals $0'' = 2$, $n$-th element
+$x, y$ as per $\beta$-function lemma) such that the $0$-th element equals $0^{++} = 2$, $n$-th element
 equals $r$, and for each $k \leqslant n$, $k$-th element is a prime bigger than $k-1$-th element,
 and there are no primes between $k-1$-th and $k$-th elements.
 
 \subsubsection{$Const(x)$ -- $x$ is (a Gödel number of) a constant}
 
-A constant $n$ is represented in our minimal arithmetics as $0\overbrace{''...'}^{n}$.
-Its Gödel number is $p_0^{\#('0')} \cdot p_1^{\#(''')} \cdot ... \cdot p_n^{\#(''')} =
+A constant $n$ is represented in our minimal arithmetics as $0\overbrace{^{++...+}}^{n}$.
+Its Gödel number is $p_0^{\#('0')} \cdot p_1^{\#(^{+++})} \cdot ... \cdot p_n^{\#(^{+++})} =
 2^1 \cdot 3^2 \cdot ... \cdot p_n^2$. Now we can express it formally:
 
 \begin{center}
@@ -314,13 +318,13 @@ How about:
 \begin{center}
     $Term(x) := CorrectlyParenthesised(x)$ and the only allowed transitions between consecutive
     symbols are: \\
-    $0 \rightarrow ', +, \cdot, )$ \\
-    $' \rightarrow ', +, \cdot, )$ \\
-    $x_i \rightarrow ', +, \cdot, )$ \\
+    $0 \rightarrow ^+, +, \cdot, )$ \\
+    $^+ \rightarrow ^+, +, \cdot, )$ \\
+    $x_i \rightarrow ^+, +, \cdot, )$ \\
     $+ \rightarrow 0, (, x_i$ \\
     $\cdot \rightarrow 0, (, x_i$ \\
     $( \rightarrow 0, (, x_i $ \\
-    $) \rightarrow ', +, \cdot, ) $ \\
+    $) \rightarrow ^+, +, \cdot, ) $ \\
 \end{center}
 
 We'll skip the proof because, again, at this point we're not trying to formally define
@@ -346,7 +350,7 @@ $X$ is a valid formula if (and only if):
 \begin{itemize}
     \item $CorrectlyParenthesised(\ulcorner x \urcorner)$
     \item Let $X_i$ denote $i$-th symbol in $X$. For all $i, j$ such that $i < j$ and $X_i = '('$
-        and $X_j = ')$:
+        and $X_j = ')'$:
         \begin{itemize}
             \item if there are no other parentheses in $X_{i + j : j - 1}$, then $X_{i + j : j - 1}$
                 is of form $Term = Term$.
@@ -419,13 +423,13 @@ We can also define:
 
 Axioms:
 \begin{center}
-    $\neg (0 = x')$ \\
-    $x' = y' \rightarrow x = y$ \\
-    $\neg (x = 0) \rightarrow \exists y (x = y')$ \\
+    $\neg (0 = x^+)$ \\
+    $x^+ = y^+ \rightarrow x = y$ \\
+    $\neg (x = 0) \rightarrow \exists y (x = y^+)$ \\
     $x + 0 = x$ \\
-    $x + y' = (x + y)'$ \\
+    $x + y^+ = (x + y)^+$ \\
     $x \cdot 0 = 0$ \\
-    $x \cdot y' = (x \cdot y) + x$
+    $x \cdot y^+ = (x \cdot y) + x$
 \end{center}
 
 \subsection{PA (Peano Arithmetic)}
@@ -433,7 +437,7 @@ Axioms:
 Q + IND axiom:
 
 \begin{center}
-    IND: $\phi(0) \land \forall_x \bigl( \phi(x) \rightarrow \phi(x') \bigl) \rightarrow \forall_x \phi(x)$
+    IND: $\phi(0) \land \forall_x \bigl( \phi(x) \rightarrow \phi(x^+) \bigl) \rightarrow \forall_x \phi(x)$
 \end{center}
 
 \section{The Diagonalization Lemma}
@@ -476,7 +480,7 @@ $T$ but is not equal to any $t_i$:
 Note that we are picking elements over the diagonal and negating them:
 
 \begin{center}
-    $t_1 = (\mathbf{0}, 0, 0, 0, 0, 0, 0...)$\\
+    $t_1 = (\mathbf{0}, 0, 0, 0, 0, 0, 0 ...)$\\
     $t_2 = (0, \mathbf{1}, 0, 1, 0, 1, 0 ...)$\\
     $t_3 = (1, 0, \mathbf{1}, 0, 1, 0, 1 ...)$\\
     $t_4 = (1, 1, 1, \mathbf{0}, 1, 1, 1 ...)$\\
@@ -504,6 +508,11 @@ In other words:
     (formally, in $F$), such that $D$ is interpreted in $F$ as "(the Gödelian representation of) $D$ has property $A$".
 \end{center}
 
+\subsection{Preliminaries}
+
+Let $\underline{n}$ be the formal term (numeral) denoting natural number $n$. For example,
+$\underline{4} = '0^{++++}'$.
+
 \subsection{Proof}
 
 Recall the $subst(x, y, z)$ operation that we defined earlier:
@@ -523,27 +532,61 @@ Let's denote it as $k := \ulcorner B(x) \urcorner$.
 Now, substitute $x$ in $B$ with $\underline{k}$. Name the resulting sentence $D$:
 
 \begin{center}
+    (1)
     $D := B(\underline{k}) := \exists_y \bigl(
         A(y) \land subst(\underline{k}, \underline{k}, y)
     \bigr)$
 \end{center}
 
-If you're not confused now, you should be. Let me unwrap this definition above
+If you're not confused now, you should be\footnote{Let me unwrap this definition above
 to show deeply we've gone with encoding formulas into Gödel numbers:
 
+    \begin{center}
+        $B(\underline{k}) \leftrightarrow
+        B(\ulcorner B(x) \urcorner) \leftrightarrow
+        B(\ulcorner \exists_y \bigl(
+            A(y) \land subst(x, x, y)
+        \bigr) \urcorner) \leftrightarrow
+        \exists_y \Bigl(
+            A(y) \land subst(
+                \ulcorner \exists_z \bigl(subst(x, x, z) \bigr) \urcorner,
+                \ulcorner \exists_z \bigl(subst(x, x, z) \bigr) \urcorner,
+                y)
+        \Bigr)
+        $
+    \end{center}
+}.
+
+Let $m := \ulcorner B(\underline{k}) \urcorner$. Then
 \begin{center}
-    $B(\underline{k}) \leftrightarrow \\
-    B(\ulcorner B(x) \urcorner) \leftrightarrow \\
-    B(\ulcorner \exists_y \bigl(
-        A(y) \land subst(x, x, y)
-    \bigr) \urcorner) \leftrightarrow \\
-    \exists_y \Bigl(
-        A(y) \land subst(
-            \ulcorner \exists_z \bigl(subst(x, x, z) \bigr) \urcorner,
-            \ulcorner \exists_z \bigl(subst(x, x, z) \bigr) \urcorner,
-            y)
-    \Bigr)
-    $
+    $subst(k, k) = m$ (because $subst(\ulcorner B(x) \urcorner, k) = \ulcorner B(\underline{k}) \urcorner$)
+\end{center}
+
+and also:
+
+\begin{center}
+    $F \models \forall_y \Bigl( S(\underline{k}, \underline{k}, y) \leftrightarrow y = \underline{m} \Bigl)$
+    (the result of substitution is unique)
+\end{center}
+
+We can write it as:
+
+\begin{center}
+    (2)
+    $F \models \forall_y \Bigl( S(\underline{k}, \underline{k}, y) \leftrightarrow y = \ulcorner B(\underline{k}) \urcorner \Bigl)$
+\end{center}
+
+From (1) and (2) we get:
+
+\begin{center}
+    (from 1) $F \models D \leftrightarrow \exists_y \bigl(
+        A(y) \land subst(\underline{k}, \underline{k}, y)
+    \bigr)$\\
+    (from 2) $F \models D \leftrightarrow \exists_y \bigl(
+        A(y) \land y = \ulcorner B(\underline{k}) \urcorner
+    \bigr)$\\
+    $F \models D \leftrightarrow A(\ulcorner B(\underline{k}) \urcorner)$\\
+    $F \models D \leftrightarrow A(\ulcorner D \urcorner)$
 \end{center}
 
 \section{Appendix}
